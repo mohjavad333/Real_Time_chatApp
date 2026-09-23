@@ -22,6 +22,26 @@ app.use(
 );
 
   app.use(cors({ origin: env.clientOrigin }));
+  // serverless-http v3 hands Express a fully buffered Body (a Buffer) instead
+  // of a stream, so express.json skips parsing and every handler sees
+  // req.body === Buffer. Parse buffered JSON/urlencoded bodies up-front; on a
+  // normal HTTP server req.body is undefined here and nothing changes.
+  app.use((req, _res, next) => {
+    if (Buffer.isBuffer(req.body)) {
+      const contentType = req.headers["content-type"] ?? "";
+      const raw = req.body.toString("utf8");
+      if (contentType.includes("application/json")) {
+        try {
+          req.body = JSON.parse(raw);
+        } catch {
+          req.body = {};
+        }
+      } else if (contentType.includes("application/x-www-form-urlencoded")) {
+        req.body = Object.fromEntries(new URLSearchParams(raw));
+      }
+    }
+    next();
+  });
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
   app.use(
