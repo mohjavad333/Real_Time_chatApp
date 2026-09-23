@@ -24,7 +24,30 @@ app.use(
   app.use(cors({ origin: env.clientOrigin }));
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
-  app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false, handler: (_req, res) => { res.status(429).json({ message: "Too many authentication attempts. Please try again later." }); } }));
+  app.use(
+    "/api/auth",
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      limit: 30,
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+      // Serverless platforms (Netlify Functions) do not populate req.ip, which
+      // makes express-rate-limit throw ERR_ERL_UNDEFINED_IP_ADDRESS and answer
+      // 500. Fall back to the platform IP headers, then a shared bucket.
+      keyGenerator: (req) => {
+        const nfIp = req.headers["x-nf-client-connection-ip"];
+        if (typeof nfIp === "string" && nfIp.trim()) return nfIp.split(",")[0].trim();
+        const forwarded = req.headers["x-forwarded-for"];
+        if (typeof forwarded === "string" && forwarded.trim()) return forwarded.split(",")[0].trim();
+        return req.ip ?? "unknown";
+      },
+      // The validation assumes a traditional HTTP server (req.ip always set).
+      validate: false,
+      handler: (_req, res) => {
+        res.status(429).json({ message: "Too many authentication attempts. Please try again later." });
+      },
+    }),
+  );
   app.use("/api", apiRouter);
 
   app.use((req, res, next) => {
