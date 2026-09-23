@@ -11,7 +11,7 @@ import { MessageList } from "./MessageList";
 import { MessageComposer } from "./MessageComposer";
 import { DetailsPanel } from "./DetailsPanel";
 import { ImageLightbox } from "./ImageLightbox";
-import { chatKeys, createConversation, fetchMessages, setConversationArchived, toViewMessages, uploadChatImage, useConversationMediaQuery, useConversationsQuery, useMessageSearchQuery, useMessagesQuery, useUserSearchQuery } from "./queries";
+import { chatKeys, createConversation, fetchMessages, sendMessageRest, setConversationArchived, toViewMessages, uploadChatImage, useConversationMediaQuery, useConversationsQuery, useMessageSearchQuery, useMessagesQuery, useUserSearchQuery } from "./queries";
 import {
   avatarColorCycle,
   formatTime,
@@ -417,7 +417,20 @@ export default function ChatWorkspace() {
           { id: `optimistic-${Date.now()}`, text: text || (imageUrl ? "Shared an image" : ""), time: "Just now", own: true, read: false, imageUrl },
         ],
       }));
-      connectChatSocket(session.token).emit("chat:message", { conversationId, text: text || undefined, imageUrl });
+      if (socketConnected) {
+        // Realtime path: the socket echo also replaces the optimistic message.
+        connectChatSocket(session.token).emit("chat:message", { conversationId, text: text || undefined, imageUrl });
+      } else {
+        // Serverless deployments (e.g. Netlify) have no persistent websocket.
+        // Send over REST, then swap the optimistic copy for the saved message.
+        const saved = await sendMessageRest(conversationId, text || undefined, imageUrl);
+        setMessages((current) => ({
+          ...current,
+          [conversationId]: (current[conversationId] ?? []).map((item) =>
+            item.id.startsWith("optimistic-") ? toMessage(saved.message, session.user.id) : item,
+          ),
+        }));
+      }
       void queryClient.invalidateQueries({ queryKey: chatKeys.conversations });
       if (stopTypingTimer.current !== null) {
         window.clearTimeout(stopTypingTimer.current);

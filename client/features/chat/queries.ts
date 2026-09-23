@@ -6,6 +6,7 @@ import type {
   ConversationMediaResponse,
   ConversationMessagesResponse,
   CreateConversationResponse,
+  CreateMessageResponse,
   SearchMessagesResponse,
   UserSearchResponse,
 } from "@shared/api";
@@ -29,6 +30,25 @@ export async function fetchConversations(archived = false): Promise<Conversation
   const response = await authedFetch(`/api/chat/conversations${archived ? "?archived=true" : ""}`, { headers: authHeaders() });
   if (!response.ok) throw new Error("Unable to load conversations");
   return response.json();
+}
+
+/**
+ * REST fallback for sending messages. Used when no persistent websocket is
+ * available (serverless deployments like Netlify Functions).
+ */
+export async function sendMessageRest(
+  conversationId: string,
+  text?: string,
+  imageUrl?: string,
+): Promise<CreateMessageResponse> {
+  const response = await authedFetch(`/api/chat/conversations/${conversationId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ text, imageUrl }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message ?? "Unable to send message");
+  return data;
 }
 
 export async function setConversationArchived(conversationId: string, archived: boolean): Promise<void> {
