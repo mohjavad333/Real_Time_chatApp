@@ -1,0 +1,49 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 33% 97%;
+    --foreground: 225 31% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 225 31% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 31% 16%;
+    --primary: 245 59% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 231 42% 96%;
+    --secondary-foreground: 231 28% 24%;
+    --muted: 216 22% 94%;
+    --muted-foreground: 219 14% 57%;
+    --accent: 245 59% 95%;
+    --accent-foreground: 245 59% 40%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 22% 91%;
+    --input: 220 22% 91%;
+    --ring: 245 59% 59%;
+    --radius: 0.75rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 225 31% 16%;
+    --sidebar-primary: 245 59% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 245 59% 95%;
+    --sidebar-accent-foreground: 245 59% 40%;
+    --sidebar-border: 220 22% 91%;
+    --sidebar-ring: 245 59% 59%;
+  }
+
+  * { @apply border-border; }
+  html { font-family: "DM Sans", sans-serif; background: #f6f8fb; }
+  body { @apply bg-background text-foreground; margin: 0; }
+  button, input { font: inherit; }
+  h1, h2, h3 { font-family: "Manrope", sans-serif; }
+}
+
+@layer utilities {
+  .scrollbar-hide { scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+}
