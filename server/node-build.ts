@@ -14,7 +14,9 @@ const distPath = path.join(import.meta.dirname, "../spa");
 
 registerSocketHandlers(io);
 app.use(express.static(distPath));
-app.get("*", (req, res) => {
+// Express 5 uses path-to-regexp v8: a bare "*" wildcard is invalid there,
+// so the SPA fallback is registered as a catch-all route instead.
+app.get("/{*splat}", (req, res) => {
   if (req.path.startsWith("/api/") || req.path.startsWith("/health")) {
     return res.status(404).json({ message: "API endpoint not found" });
   }
