@@ -139,19 +139,15 @@ The repo includes `netlify.toml` and `netlify/functions/api.ts` for deploying th
 
 ## Roadmap
 
-- [ ] Group chats
+
 - [ ] Message editing and deletion
 - [ ] Typing indicators
-- [ ] File attachments beyond images
 - [ ] Push notifications
 
 ## Contributing
 [English](README.md) | **فارسی**
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-## License
-
-Distributed under the MIT License. See `LICENSE` for details.
 
 ## Author
 
@@ -303,19 +299,10 @@ docker compose up --build
 
 ## نقشه‌ی راه
 
-- [ ] چت گروهی
 - [ ] ویرایش و حذف پیام
 - [ ] نمایش «در حال نوشتن...»
-- [ ] پیوست انواع فایل (غیر از تصویر)
 - [ ] اعلان‌های پوش
 
-## مشارکت
-
-Pull Request ها خوش‌آمدن. برای تغییرات بزرگ، لطفاً اول یک Issue باز کن تا درباره‌ی تغییر صحبت کنیم.
-
-## لایسنس
-
-تحت لایسنس MIT منتشر شده. جزئیات در فایل `LICENSE`.
 
 ## توسعه‌دهنده
 
